@@ -9,11 +9,11 @@ namespace WP8.Async.Helpers
         /// <summary>
         /// Initiates the set of animations associated with the storyboard asynchronously.
         /// </summary>
-        /// <param name="this"></param>
+        /// <param name="storyboard">A storyboard which will be executed asynchronously.</param>
         /// <returns>A task that will complete when the storyboard is finished.</returns>
-        public static Task BeginAsync(this Storyboard @this)
+        public static Task BeginAsync(this Storyboard storyboard)
         {
-            if (@this == null)
+            if (storyboard == null)
                 throw new NullReferenceException();
 
             // it doesn't really matter which type is used here.
@@ -21,11 +21,11 @@ namespace WP8.Async.Helpers
             EventHandler handler = null;
             handler = (sender, e) =>
                 {
-                    @this.Completed -= handler;
+                    storyboard.Completed -= handler;
                     tcs.TrySetResult(true);
                 };
-            @this.Completed += handler;
-            @this.Begin();
+            storyboard.Completed += handler;
+            storyboard.Begin();
             return tcs.Task;
         }
     }
