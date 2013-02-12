@@ -1,10 +1,11 @@
-﻿namespace System.Net
+﻿using System;
+using System.IO;
+using System.Net;
+using System.Threading;
+using System.Threading.Tasks;
+
+namespace WP8.Async.Helpers
 {
-    using System;
-    using System.IO;
-    using System.Net;
-    using System.Threading;
-    using System.Threading.Tasks;
 
     public static class WebClientExtensions
     {
@@ -32,7 +33,7 @@
 
             var tcs = new TaskCompletionSource<string>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             DownloadProgressChangedEventHandler progressHandler = null;
@@ -85,7 +86,7 @@
 
             var tcs = new TaskCompletionSource<Tuple<string, object>>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             DownloadProgressChangedEventHandler progressHandler = null;
@@ -131,7 +132,7 @@
 
             var tcs = new TaskCompletionSource<Stream>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             OpenReadCompletedEventHandler handler = null;
@@ -164,7 +165,7 @@
 
             var tcs = new TaskCompletionSource<Tuple<Stream, object>>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             OpenReadCompletedEventHandler handler = null;
@@ -196,7 +197,7 @@
 
             var tcs = new TaskCompletionSource<Stream>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
@@ -224,7 +225,7 @@
 
             var tcs = new TaskCompletionSource<Stream>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
@@ -252,7 +253,7 @@
 
             var tcs = new TaskCompletionSource<Tuple<Stream, object>>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
@@ -299,7 +300,7 @@
 
             var tcs = new TaskCompletionSource<string>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;
@@ -350,7 +351,7 @@
 
             var tcs = new TaskCompletionSource<string>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;
@@ -402,7 +403,7 @@
 
             var tcs = new TaskCompletionSource<Tuple<string, object>>();
 
-            if (token != null)
+            if (token != CancellationToken.None)
                 token.Register(() => @this.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;

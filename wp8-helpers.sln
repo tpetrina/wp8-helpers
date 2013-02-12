@@ -1,9 +1,9 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Express 2012 for Windows Phone
+# Visual Studio 2012
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wp8.helpers.test", "wp8.helpers.test\wp8.helpers.test.csproj", "{4BA1BB22-9D23-4570-A3BB-E7244F406560}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "wp8.async.helpers", "wp8.async.helpers\wp8.async.helpers.csproj", "{12F4D023-FEDC-42C7-9E61-848B62ED9F4D}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "WP8.Async.Helpers", "wp8.async.helpers\WP8.Async.Helpers.csproj", "{12F4D023-FEDC-42C7-9E61-848B62ED9F4D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
