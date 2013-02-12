@@ -6,21 +6,29 @@ namespace WP8.Async.Helpers
 {
     public static class ContacsExtensions
     {
-        public static Task<ContactsSearchEventArgs> SearchTaskAsync(this Contacts @this, string filter, FilterKind filterKind, object state)
+        /// <summary>
+        /// Asynchronously searches for contacts in the user’s contact data.
+        /// </summary>
+        /// <param name="contacts">The contacts which will be searched.</param>
+        /// <param name="filter">The filter to use to search for contacts.</param>
+        /// <param name="filterKind">The kind of filter to use when searching for contacts.</param>
+        /// <param name="state">A user-defined object that contains information about the operation.</param>
+        /// <returns>Search results.</returns>
+        public static Task<ContactsSearchEventArgs> SearchTaskAsync(this Contacts contacts, string filter, FilterKind filterKind, object state)
         {
-            if (@this == null)
+            if (contacts == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<ContactsSearchEventArgs>();
             EventHandler<ContactsSearchEventArgs> handler = null;
             handler = (sender, e) =>
                 {
-                    @this.SearchCompleted -= handler;
+                    contacts.SearchCompleted -= handler;
                     tcs.TrySetResult(e);
                 };
 
-            @this.SearchCompleted += handler;
-            @this.SearchAsync(filter, filterKind, state);
+            contacts.SearchCompleted += handler;
+            contacts.SearchAsync(filter, filterKind, state);
 
             return tcs.Task;
         }
