@@ -18,9 +18,10 @@ namespace WP8.Async.Helpers
         /// <param name="userCallback">An optional asynchronous callback, to be called when the read is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous read
         ///  request from other requests.</param>
-        /// <returns>The number of bytes read from the stream, between zero (0) and the number
-        /// of bytes you requested. Streams return zero (0) only at the end of the stream,
-        /// otherwise, they should block until at least one byte is available.</returns>
+        /// <returns>The task object representing the asynchronous operation. The Result property
+        /// on the task object returns the number of bytes read from the stream, between zero (0)
+        /// and the number of bytes you requested. Streams return zero (0) only at the end of the
+        /// stream, otherwise, they should block until at least one byte is available.</returns>
         public static Task<int> ReadAsync(this FileStream fileStream, byte[] buffer, int offset, int count, AsyncCallback userCallback, object state)
         {
             if (fileStream == null)
@@ -41,7 +42,7 @@ namespace WP8.Async.Helpers
         /// <param name="userCallback">An optional asynchronous callback, to be called when the write is complete.</param>
         /// <param name="state">A user-provided object that distinguishes this particular asynchronous write
         /// request from other requests.</param>
-        /// <returns>A task that will complete when the storyboard is finished.</returns>
+        /// <returns>The task object representing the asynchronous operation.</returns>
         public static Task WriteAsync(this FileStream fileStream, byte[] buffer, int offset, int count, AsyncCallback userCallback, object state)
         {
             if (fileStream == null)

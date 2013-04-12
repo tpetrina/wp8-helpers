@@ -14,7 +14,8 @@ namespace WP8.Async.Helpers
         /// <param name="startTimeInclusive">The start date and time to use to search for appointments.</param>
         /// <param name="endTimeInclusive">The end date and time to use to search for appointments.</param>
         /// <param name="state">A user-defined object that contains information about the operation.</param>
-        /// <returns>Search results.</returns>
+        /// <returns>The task object representing the asynchronous operation. The Result property
+        /// on the task object returns search results.</returns>
         public static Task<AppointmentsSearchEventArgs> SearchTaskAsync(this Appointments appointments, DateTime startTimeInclusive, DateTime endTimeInclusive, object state)
         {
             if (appointments == null)
@@ -23,13 +24,21 @@ namespace WP8.Async.Helpers
             var tcs = new TaskCompletionSource<AppointmentsSearchEventArgs>();
             EventHandler<AppointmentsSearchEventArgs> handler = null;
             handler = (sender, e) =>
-                {
-                    appointments.SearchCompleted -= handler;
-                    tcs.TrySetResult(e);
-                };
+            {
+                appointments.SearchCompleted -= handler;
+                tcs.TrySetResult(e);
+            };
 
             appointments.SearchCompleted += handler;
-            appointments.SearchAsync(startTimeInclusive, endTimeInclusive, state);
+            try
+            {
+                appointments.SearchAsync(startTimeInclusive, endTimeInclusive, state);
+            }
+            catch
+            {
+                appointments.SearchCompleted -= handler;
+                throw;
+            }
 
             return tcs.Task;
         }
@@ -43,7 +52,8 @@ namespace WP8.Async.Helpers
         /// <param name="endTimeInclusive">The end date and time to use to search for appointments.</param>
         /// <param name="account">The data source to search for appointments.</param>
         /// <param name="state">A user-defined object that contains information about the operation.</param>
-        /// <returns>Search results.</returns>
+        /// <returns>The task object representing the asynchronous operation. The Result property 
+        /// on the task object returns search results.</returns>
         public static Task<AppointmentsSearchEventArgs> SearchTaskAsync(this Appointments appointments, DateTime startTimeInclusive, DateTime endTimeInclusive, Account account, object state)
         {
             if (appointments == null)
@@ -58,7 +68,15 @@ namespace WP8.Async.Helpers
             };
 
             appointments.SearchCompleted += handler;
-            appointments.SearchAsync(startTimeInclusive, endTimeInclusive, account, state);
+            try
+            {
+                appointments.SearchAsync(startTimeInclusive, endTimeInclusive, account, state);
+            }
+            catch
+            {
+                appointments.SearchCompleted -= handler;
+                throw;
+            }
 
             return tcs.Task;
         }
@@ -73,7 +91,8 @@ namespace WP8.Async.Helpers
         /// <param name="endTimeInclusive">The end date and time to use to search for appointments.</param>
         /// <param name="maximumItems">The maximum number of appointments to return.</param>
         /// <param name="state">A user-defined object that contains information about the operation.</param>
-        /// <returns>Search results.</returns>
+        /// <returns>The task object representing the asynchronous operation. The Result property
+        /// on the task object returns search results.</returns>
         public static Task<AppointmentsSearchEventArgs> SearchTaskAsync(this Appointments appointments, DateTime startTimeInclusive, DateTime endTimeInclusive, int maximumItems, object state)
         {
             if (appointments == null)
@@ -88,7 +107,15 @@ namespace WP8.Async.Helpers
             };
 
             appointments.SearchCompleted += handler;
-            appointments.SearchAsync(startTimeInclusive, endTimeInclusive, maximumItems, state);
+            try
+            {
+                appointments.SearchAsync(startTimeInclusive, endTimeInclusive, maximumItems, state);
+            }
+            catch
+            {
+                appointments.SearchCompleted -= handler;
+                throw;
+            }
 
             return tcs.Task;
         }
@@ -104,7 +131,8 @@ namespace WP8.Async.Helpers
         /// <param name="maximumItems">The maximum number of appointments to return.</param>
         /// <param name="account">The data source to search for appointments.</param>
         /// <param name="state"></param>
-        /// <returns>Search results</returns>
+        /// <returns>The task object representing the asynchronous operation. The Result property
+        /// on the task object returns search results</returns>
         public static Task<AppointmentsSearchEventArgs> SearchTaskAsync(this Appointments appointments, DateTime startTimeInclusive, DateTime endTimeInclusive, int maximumItems, Account account, object state)
         {
             if (appointments == null)
@@ -119,7 +147,15 @@ namespace WP8.Async.Helpers
             };
 
             appointments.SearchCompleted += handler;
-            appointments.SearchAsync(startTimeInclusive, endTimeInclusive, maximumItems, account, state);
+            try
+            {
+                appointments.SearchAsync(startTimeInclusive, endTimeInclusive, maximumItems, account, state);
+            }
+            catch
+            {
+                appointments.SearchCompleted -= handler;
+                throw;
+            }
 
             return tcs.Task;
         }

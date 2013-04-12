@@ -4,13 +4,13 @@ using System.Windows.Media.Animation;
 
 namespace WP8.Async.Helpers
 {
-    public static class OtherExtensions
+    public static class StoryboardExtensions
     {
         /// <summary>
-        /// Initiates the set of animations associated with the storyboard asynchronously.
+        /// Asynchronously initiates the set of animations associated with the storyboard.
         /// </summary>
         /// <param name="storyboard">A storyboard which will be executed asynchronously.</param>
-        /// <returns>A task that will complete when the storyboard is finished.</returns>
+        /// <returns>The task object representing the asynchronous operation.</returns>
         public static Task BeginAsync(this Storyboard storyboard)
         {
             if (storyboard == null)
@@ -20,12 +20,22 @@ namespace WP8.Async.Helpers
             var tcs = new TaskCompletionSource<bool>();
             EventHandler handler = null;
             handler = (sender, e) =>
-                {
-                    storyboard.Completed -= handler;
-                    tcs.TrySetResult(true);
-                };
+            {
+                storyboard.Completed -= handler;
+                tcs.TrySetResult(true);
+            };
+
             storyboard.Completed += handler;
-            storyboard.Begin();
+            try
+            {
+                storyboard.Begin();
+            }
+            catch
+            {
+                storyboard.Completed -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
     }

@@ -84,7 +84,10 @@
   </PropertyGroup>
   <ItemGroup>
     <Compile Include="AppointmentsExtensions.cs" />
+    <Compile Include="BackgroundWorkerExtensions.cs" />
     <Compile Include="ContacsExtensions.cs" />
+    <Compile Include="FileStreamExtensions.cs" />
+    <Compile Include="StoryboardExtensions.cs" />
     <Compile Include="WebClientExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="WebExtensions.cs" />

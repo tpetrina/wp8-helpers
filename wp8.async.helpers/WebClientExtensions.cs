@@ -6,50 +6,80 @@ using System.Threading.Tasks;
 
 namespace WP8.Async.Helpers
 {
-
     public static class WebClientExtensions
     {
         #region DownloadString
 
-        public static Task<String> DownloadStringTaskAsync(this WebClient @this, Uri address)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a string result of the operation.</returns>
+        public static Task<String> DownloadStringTaskAsync(this WebClient webClient, Uri address)
         {
-            return @this.DownloadStringTaskAsync(address, CancellationToken.None, null);
+            return webClient.DownloadStringTaskAsync(address, CancellationToken.None, null);
         }
 
-        public static Task<String> DownloadStringTaskAsync(this WebClient @this, Uri address, CancellationToken token)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and monitors cancellation requests.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a string result of the operation.</returns>
+        public static Task<String> DownloadStringTaskAsync(this WebClient webClient, Uri address, CancellationToken token)
         {
-            return @this.DownloadStringTaskAsync(address, token, null);
+            return webClient.DownloadStringTaskAsync(address, token, null);
         }
 
-        public static Task<String> DownloadStringTaskAsync(this WebClient @this, Uri address, IProgress<DownloadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and reports progress.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a string result of the operation.</returns>
+        public static Task<String> DownloadStringTaskAsync(this WebClient webClient, Uri address, IProgress<DownloadProgressChangedEventArgs> progress)
         {
-            return @this.DownloadStringTaskAsync(address, CancellationToken.None, progress);
+            return webClient.DownloadStringTaskAsync(address, CancellationToken.None, progress);
         }
 
-        public static Task<String> DownloadStringTaskAsync(this WebClient @this, Uri address, CancellationToken token, IProgress<DownloadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and monitors cancellation requests, and reports progress.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a string result of the operation.</returns>
+        public static Task<String> DownloadStringTaskAsync(this WebClient webClient, Uri address, CancellationToken token, IProgress<DownloadProgressChangedEventArgs> progress)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<string>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             DownloadProgressChangedEventHandler progressHandler = null;
             if (progress != null)
             {
                 progressHandler = (sender, e) => progress.Report(e);
-                @this.DownloadProgressChanged += progressHandler;
+                webClient.DownloadProgressChanged += progressHandler;
             }
 
             DownloadStringCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
                 if (progress != null)
-                    @this.DownloadProgressChanged -= progressHandler;
+                    webClient.DownloadProgressChanged -= progressHandler;
 
-                @this.DownloadStringCompleted -= handler;
+                webClient.DownloadStringCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -59,49 +89,94 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.DownloadStringCompleted += handler;
-            @this.DownloadStringAsync(address);
+            webClient.DownloadStringCompleted += handler;
+            try
+            {
+                webClient.DownloadStringAsync(address);
+            }
+            catch
+            {
+                webClient.DownloadProgressChanged -= progressHandler;
+                webClient.DownloadStringCompleted -= handler;
+                throw;
+            }
             return tcs.Task;
         }
 
-        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient @this, Uri address, object userToken)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and monitors cancellation requests, and reports progress.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a Tuple instance containing downloaded data and user-specified identifier.</returns>
+        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient webClient, Uri address, object userToken)
         {
-            return @this.DownloadStringTaskAsync(address, userToken, CancellationToken.None, null);
+            return webClient.DownloadStringTaskAsync(address, userToken, CancellationToken.None, null);
         }
 
-        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient @this, Uri address, object userToken, CancellationToken token)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and monitors cancellation requests.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a Tuple instance containing downloaded data and user-specified identifier.</returns>
+        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient webClient, Uri address, object userToken, CancellationToken token)
         {
-            return @this.DownloadStringTaskAsync(address, userToken, token, null);
+            return webClient.DownloadStringTaskAsync(address, userToken, token, null);
         }
 
-        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient @this, Uri address, object userToken, IProgress<DownloadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and reports progress.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a Tuple instance containing downloaded data and user-specified identifier.</returns>
+        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient webClient, Uri address, object userToken, IProgress<DownloadProgressChangedEventArgs> progress)
         {
-            return @this.DownloadStringTaskAsync(address, userToken, CancellationToken.None, progress);
+            return webClient.DownloadStringTaskAsync(address, userToken, CancellationToken.None, progress);
         }
 
-        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient @this, Uri address, object userToken, CancellationToken token, IProgress<DownloadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// Asynchronously downloads the resource as a String from the URI specified,
+        /// and monitors cancellation requests, and reports progress.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to download.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a Tuple instance containing downloaded data and user-specified identifier.</returns>
+        public static Task<Tuple<String, object>> DownloadStringTaskAsync(this WebClient webClient, Uri address, object userToken, CancellationToken token, IProgress<DownloadProgressChangedEventArgs> progress)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Tuple<string, object>>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             DownloadProgressChangedEventHandler progressHandler = null;
             if (progress != null)
             {
                 progressHandler = (sender, e) => progress.Report(e);
-                @this.DownloadProgressChanged += progressHandler;
+                webClient.DownloadProgressChanged += progressHandler;
             }
 
             DownloadStringCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
                 if (progress != null)
-                    @this.DownloadProgressChanged -= progressHandler;
-                @this.DownloadStringCompleted -= handler;
+                    webClient.DownloadProgressChanged -= progressHandler;
+                webClient.DownloadStringCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -111,8 +186,18 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(Tuple.Create(e.Result, e.UserState));
             };
 
-            @this.DownloadStringCompleted += handler;
-            @this.DownloadStringAsync(address, userToken);
+            webClient.DownloadStringCompleted += handler;
+            try
+            {
+                webClient.DownloadStringAsync(address, userToken);
+            }
+            catch
+            {
+                webClient.DownloadProgressChanged -= progressHandler;
+                webClient.DownloadStringCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
@@ -120,25 +205,39 @@ namespace WP8.Async.Helpers
 
         #region OpenRead
 
-        public static Task<Stream> OpenReadTaskAsync(this WebClient @this, Uri address)
+        /// <summary>
+        /// Opens a readable stream containing the specified resource as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to retrieve.</param>
+        /// <returns>The task object representing the asynchronous operation. The Result property on the task object returns a  System.IO.Stream open for reading.</returns>
+        public static Task<Stream> OpenReadTaskAsync(this WebClient webClient, Uri address)
         {
-            return @this.OpenReadTaskAsync(address, CancellationToken.None);
+            return webClient.OpenReadTaskAsync(address, CancellationToken.None);
         }
 
-        public static Task<Stream> OpenReadTaskAsync(this WebClient @this, Uri address, CancellationToken token)
+        /// <summary>
+        /// Opens a readable stream containing the specified resource as an asynchronous operation using a task object,
+        /// and monitors cancellation requests.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to retrieve.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns>A System.IO.Stream open for reading.</returns>
+        public static Task<Stream> OpenReadTaskAsync(this WebClient webClient, Uri address, CancellationToken token)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Stream>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             OpenReadCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
-                @this.OpenReadCompleted -= handler;
+                webClient.OpenReadCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -148,30 +247,55 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.OpenReadCompleted += handler;
-            @this.OpenReadAsync(address);
+            webClient.OpenReadCompleted += handler;
+            try
+            {
+                webClient.OpenReadAsync(address);
+            }
+            catch
+            {
+                webClient.OpenReadCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
-        public static Task<Tuple<Stream, object>> OpenReadTaskAsync(this WebClient @this, Uri address, object userToken)
+        /// <summary>
+        /// Opens a readable stream containing the specified resource as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to retrieve.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <returns></returns>
+        public static Task<Tuple<Stream, object>> OpenReadTaskAsync(this WebClient webClient, Uri address, object userToken)
         {
-            return @this.OpenReadTaskAsync(address, userToken, CancellationToken.None);
+            return webClient.OpenReadTaskAsync(address, userToken, CancellationToken.None);
         }
 
-        public static Task<Tuple<Stream, object>> OpenReadTaskAsync(this WebClient @this, Uri address, object userToken, CancellationToken token)
+        /// <summary>
+        /// Opens a readable stream containing the specified resource as an asynchronous operation using a task object,
+        /// and monitors cancellation requests.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to retrieve.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<Tuple<Stream, object>> OpenReadTaskAsync(this WebClient webClient, Uri address, object userToken, CancellationToken token)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Tuple<Stream, object>>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             OpenReadCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
-                @this.OpenReadCompleted -= handler;
+                webClient.OpenReadCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -181,8 +305,17 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(Tuple.Create(e.Result, userToken));
             };
 
-            @this.OpenReadCompleted += handler;
-            @this.OpenReadAsync(address, userToken);
+            webClient.OpenReadCompleted += handler;
+            try
+            {
+                webClient.OpenReadAsync(address, userToken);
+            }
+            catch
+            {
+                webClient.OpenReadCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
@@ -190,20 +323,38 @@ namespace WP8.Async.Helpers
 
         #region OpenWrite
 
-        public static Task<Stream> OpenWriteTaskAsync(this WebClient @this, Uri address, CancellationToken token)
+        /// <summary>
+        /// Opens a stream for writing data to the specified resource as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to receive the data.</param>
+        /// <returns></returns>
+        public static Task<Stream> OpenWriteTaskAsync(this WebClient webClient, Uri address)
         {
-            if (@this == null)
+            return OpenWriteTaskAsync(webClient, address, CancellationToken.None);
+        }
+
+        /// <summary>
+        /// Opens a stream for writing data to the specified resource as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to receive the data.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<Stream> OpenWriteTaskAsync(this WebClient webClient, Uri address, CancellationToken token)
+        {
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Stream>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
-                @this.OpenWriteCompleted -= handler;
+                webClient.OpenWriteCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -213,25 +364,33 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.OpenWriteCompleted += handler;
-            @this.OpenWriteAsync(address);
+            webClient.OpenWriteCompleted += handler;
+            webClient.OpenWriteAsync(address);
             return tcs.Task;
         }
 
-        public static Task<Stream> OpenWriteTaskAsync(this WebClient @this, Uri address, string method, CancellationToken token)
+        /// <summary>
+        /// Opens a stream for writing data to the specified resource, using the specified method, as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to receive the data.</param>
+        /// <param name="method">The method used to send the data to the resource. If null, the default is POST for http and STOR for ftp.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<Stream> OpenWriteTaskAsync(this WebClient webClient, Uri address, string method, CancellationToken token)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Stream>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
-                @this.OpenWriteCompleted -= handler;
+                webClient.OpenWriteCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -241,25 +400,43 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.OpenWriteCompleted += handler;
-            @this.OpenWriteAsync(address, method);
+            webClient.OpenWriteCompleted += handler;
+            try
+            {
+                webClient.OpenWriteAsync(address, method);
+            }
+            catch
+            {
+                webClient.OpenWriteCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
-        public static Task<Tuple<Stream, object>> OpenWriteTaskAsync(this WebClient @this, Uri address, string method, object userToken, CancellationToken token)
+        /// <summary>
+        /// Opens a stream for writing data to the specified resource, using the specified method, as an asynchronous operation using a task object.
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address">The URI of the resource to receive the data.</param>
+        /// <param name="method">The method used to send the data to the resource. If null, the default is POST for http and STOR for ftp.</param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<Tuple<Stream, object>> OpenWriteTaskAsync(this WebClient webClient, Uri address, string method, object userToken, CancellationToken token)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Tuple<Stream, object>>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             OpenWriteCompletedEventHandler handler = null;
             handler = (sender, e) =>
             {
-                @this.OpenWriteCompleted -= handler;
+                webClient.OpenWriteCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -269,8 +446,17 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(Tuple.Create(e.Result, userToken));
             };
 
-            @this.OpenWriteCompleted += handler;
-            @this.OpenWriteAsync(address, method, userToken);
+            webClient.OpenWriteCompleted += handler;
+            try
+            {
+                webClient.OpenWriteAsync(address, method, userToken);
+            }
+            catch
+            {
+                webClient.OpenWriteCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
@@ -278,30 +464,62 @@ namespace WP8.Async.Helpers
 
         #region UploadString
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string data)
+        /// <summary>
+        /// Uploads the specified string to the specified resource, using the specified model
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string data)
         {
-            return @this.UploadStringTaskAsync(address, data, CancellationToken.None, null);
+            return webClient.UploadStringTaskAsync(address, data, CancellationToken.None, null);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string data, CancellationToken token)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string data, CancellationToken token)
         {
-            return @this.UploadStringTaskAsync(address, data, token, null);
+            return webClient.UploadStringTaskAsync(address, data, token, null);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string data, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string data, IProgress<UploadProgressChangedEventArgs> progress)
         {
-            return @this.UploadStringTaskAsync(address, data, CancellationToken.None, progress);
+            return webClient.UploadStringTaskAsync(address, data, CancellationToken.None, progress);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string data, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="data"></param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string data, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<string>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;
             if (progress != null)
@@ -311,8 +529,8 @@ namespace WP8.Async.Helpers
             handler = (sender, e) =>
             {
                 if (progress != null)
-                    @this.UploadProgressChanged -= progressHandler;
-                @this.UploadStringCompleted -= handler;
+                    webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -322,37 +540,82 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.UploadProgressChanged += progressHandler;
-            @this.UploadStringCompleted += handler;
-            @this.UploadStringAsync(address, data);
+            webClient.UploadProgressChanged += progressHandler;
+            webClient.UploadStringCompleted += handler;
+            try
+            {
+                webClient.UploadStringAsync(address, data);
+            }
+            catch
+            {
+                webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
-
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data)
         {
-            return @this.UploadStringTaskAsync(address, method, data, CancellationToken.None, null);
+            return webClient.UploadStringTaskAsync(address, method, data, CancellationToken.None, null);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, CancellationToken token)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, CancellationToken token)
         {
-            return @this.UploadStringTaskAsync(address, method, data, token, null);
+            return webClient.UploadStringTaskAsync(address, method, data, token, null);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, IProgress<UploadProgressChangedEventArgs> progress)
         {
-            return @this.UploadStringTaskAsync(address, method, data, CancellationToken.None, progress);
+            return webClient.UploadStringTaskAsync(address, method, data, CancellationToken.None, progress);
         }
 
-        public static Task<string> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<string> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
         {
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<string>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;
             if (progress != null)
@@ -362,8 +625,8 @@ namespace WP8.Async.Helpers
             handler = (sender, e) =>
             {
                 if (progress != null)
-                    @this.UploadProgressChanged -= progressHandler;
-                @this.UploadStringCompleted -= handler;
+                    webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -373,38 +636,87 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(e.Result);
             };
 
-            @this.UploadProgressChanged += progressHandler;
-            @this.UploadStringCompleted += handler;
-            @this.UploadStringAsync(address, method, data);
+            webClient.UploadProgressChanged += progressHandler;
+            webClient.UploadStringCompleted += handler;
+            try
+            {
+                webClient.UploadStringAsync(address, method, data);
+            }
+            catch
+            {
+                webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
-
-        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, object userToken)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <returns></returns>
+        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, object userToken)
         {
-            return @this.UploadStringTaskAsync(address, method, data, userToken, CancellationToken.None, null);
+            return webClient.UploadStringTaskAsync(address, method, data, userToken, CancellationToken.None, null);
         }
 
-        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, object userToken, CancellationToken token)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <returns></returns>
+        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, object userToken, CancellationToken token)
         {
-            return @this.UploadStringTaskAsync(address, method, data, userToken, token, null);
+            return webClient.UploadStringTaskAsync(address, method, data, userToken, token, null);
         }
 
-        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, object userToken, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, object userToken, IProgress<UploadProgressChangedEventArgs> progress)
         {
-            return @this.UploadStringTaskAsync(address, method, data, userToken, CancellationToken.None, progress);
+            return webClient.UploadStringTaskAsync(address, method, data, userToken, CancellationToken.None, progress);
         }
 
-        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient @this, Uri address, string method, string data, object userToken, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="webClient">The WebClient which will be used to dowload.</param>
+        /// <param name="address"></param>
+        /// <param name="method"></param>
+        /// <param name="data"></param>
+        /// <param name="userToken">A user-defined object that is passed to the method invoked when the asynchronous operation completes.</param>
+        /// <param name="token">The token to monitor for cancellation requests. The default value is None.</param>
+        /// <param name="progress">An object that receives progress updates.</param>
+        /// <returns></returns>
+        public static Task<Tuple<string, object>> UploadStringTaskAsync(this WebClient webClient, Uri address, string method, string data, object userToken, CancellationToken token, IProgress<UploadProgressChangedEventArgs> progress)
         {
 
-            if (@this == null)
+            if (webClient == null)
                 throw new NullReferenceException();
 
             var tcs = new TaskCompletionSource<Tuple<string, object>>();
 
             if (token != CancellationToken.None)
-                token.Register(() => @this.CancelAsync());
+                token.Register(() => webClient.CancelAsync());
 
             UploadProgressChangedEventHandler progressHandler = null;
             if (progress != null)
@@ -414,8 +726,8 @@ namespace WP8.Async.Helpers
             handler = (sender, e) =>
             {
                 if (progress != null)
-                    @this.UploadProgressChanged -= progressHandler;
-                @this.UploadStringCompleted -= handler;
+                    webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
 
                 if (e.Error != null)
                     tcs.TrySetException(e.Error);
@@ -425,9 +737,19 @@ namespace WP8.Async.Helpers
                     tcs.TrySetResult(Tuple.Create(e.Result, userToken));
             };
 
-            @this.UploadProgressChanged += progressHandler;
-            @this.UploadStringCompleted += handler;
-            @this.UploadStringAsync(address, method, data, userToken);
+            webClient.UploadProgressChanged += progressHandler;
+            webClient.UploadStringCompleted += handler;
+            try
+            {
+                webClient.UploadStringAsync(address, method, data, userToken);
+            }
+            catch
+            {
+                webClient.UploadProgressChanged -= progressHandler;
+                webClient.UploadStringCompleted -= handler;
+                throw;
+            }
+
             return tcs.Task;
         }
 
